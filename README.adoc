@@ -1,0 +1,86 @@
+= OSGeo Termbase programs
+
+== Purpose
+
+This gem is used for the creation and deployment of OSGeo Geolexica,
+the OSGeo Glossary,
+located at https://osgeo.geolexica.org.
+
+The repository for the site is located at:
+
+* https://github.com/geolexica/osgeo.geolexica.org
+
+
+== Install
+
+Add this line to your Gemfile:
+
+[source,ruby]
+----
+gem 'osgeo-termbase'
+----
+
+And then execute:
+
+[source,sh]
+----
+$ bundle
+----
+
+Or install it yourself as:
+
+[source,sh]
+----
+$ gem install osgeo-termbase
+----
+
+
+== Usage
+
+The gem comes with the following executable:
+
+* `osgeo-termbase-csv2yaml`: used to extract terms from the official
+  OSGeo glossary table, into ConceptYAML and TermYAML files.
+
+* `osgeo-termbase-fetchcsv`: used to fetch the latest OSGeo glossary
+  in CSV format.
+
+
+=== Using `osgeo-termbase-csv2yaml`
+
+Run the following command:
+
+[source,sh]
+----
+$ osgeo-termbase-csv2yaml [termbase.csv]
+----
+
+Where,
+
+* the ConceptCollection YAML will be created at `[termbase.yaml]` at
+  the current working directory;
+
+* ConceptYAML files for each concept (each concept identified by a unique "`Term-ID`")
+  are created under the `concepts/` directory (based on the current working directory).
+  i.e. `concepts/concept-338.yaml`.
+
+
+=== Using `osgeo-termbase-fetchcsv`
+
+Run the following command:
+
+[source,sh]
+----
+$ osgeo-termbase-fetchcsv [termbase.csv]
+----
+
+Where,
+
+* the OSGeo glossary CSV file will be created at `[termbase.yaml]` in
+  the current working directory.
+
+
+== Credits
+
+This program is created and maintained by Ribose / Geolexica
+for the OSGeo Lexicon Committee (OSGeo LC).
