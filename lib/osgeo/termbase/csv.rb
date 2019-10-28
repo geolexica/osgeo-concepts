@@ -29,7 +29,7 @@ class Csv
     # Here we replace the DOS \r\n with Unix \n
     csv_content = csv_content.gsub(/\r\n/, "\n")
 
-    puts csv_content
+    # puts csv_content
 
     CSV.new(
       csv_content,
@@ -44,12 +44,16 @@ class Csv
         domain: row[2],
         comments: row[3] && [row[3]],
         definition: row[4],
-        authoritative_source: row[5],
+        authoritative_source: {
+          "link" => row[5],
+          # ref: '',
+          # clause: ''
+        },
         entry_status: row[6],
         language_code: "eng"
       )
 
-      puts term.to_hash
+      # puts term.to_hash
       collection.add_term(term)
     end
 
