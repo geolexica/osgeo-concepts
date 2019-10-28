@@ -1,0 +1,56 @@
+#!/usr/bin/env ruby
+
+require 'pp'
+require 'pathname'
+require 'fileutils'
+require_relative '../lib/osgeo/termbase.rb'
+# require 'pry'
+
+filepath = ARGV[0]
+#'./osgeo-termbase.xlsx'
+
+if filepath.nil?
+  puts 'Error: no filepath given as first argument.'
+  exit 1
+end
+
+if Pathname.new(filepath).extname != ".csv"
+  puts 'Error: filepath given must have extension .csv.'
+  exit 1
+end
+
+
+table = Osgeo::Termbase::Csv.new(filepath)
+
+# registries = {
+#   "eng" => {
+#     metadata: {},
+#     terms: table.concept_collection
+#   }
+# }
+
+output_dir = Dir.pwd
+
+# metadata = {
+#   'header' => workbook.glossary_info.metadata_section.to_hash["metadata"]
+# }
+# # Write registry metadata
+# metadata['languages'] = registries.inject({}) do |acc, (lang, data)|
+#   acc.merge({lang => data[:metadata]})
+# end
+
+# File.open(File.join(output_dir, Pathname.new(filepath).basename.sub_ext(".meta.yaml")),"w") do |file|
+#   file.write(metadata.to_yaml)
+# end
+
+collection = table.concept_collection
+
+collection.to_file(File.join(output_dir, Pathname.new(filepath).basename.sub_ext(".yaml")))
+
+collection_output_dir = File.join(output_dir, "concepts")
+
+FileUtils.mkdir_p(collection_output_dir)
+
+collection.keys.each do |id|
+  collection[id].to_file(File.join(collection_output_dir, "concept-#{id}.yaml"))
+end

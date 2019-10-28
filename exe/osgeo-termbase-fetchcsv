@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+
+require 'net/http'
+require 'uri'
+
+filepath = ARGV[0]
+#'./osgeo-termbase.xlsx'
+
+if filepath.nil?
+  puts 'Error: no filepath given as first argument.'
+  exit 1
+end
+
+if Pathname.new(filepath).extname != ".csv"
+  puts 'Error: filepath given must have extension .csv.'
+  exit 1
+end
+
+uri = URI.parse("https://docs.google.com/spreadsheets/d/e/2PACX-1vRiH36W8s6WfxFCdb_FfHSqMebxRXgq-bIbTgzYyRGzELHvLrhESiasPO6hqEWLsELlXtRcXhxcSIbQ/pub?gid=222410614&single=true&output=csv")
+response = Net::HTTP.get_response(uri)
+
+# response.code
+# response.body
+
+File.open(filepath, "w") do |f|
+  f.puts response.body
+end
