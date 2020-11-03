@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    osgeo-termbase (0.0.3)
+    osgeo-termbase (0.1.0)
       relaton (~> 0.5)
 
 GEM
@@ -9,9 +9,9 @@ GEM
   specs:
     addressable (2.7.0)
       public_suffix (>= 2.0.2, < 5.0)
-    bibtex-ruby (5.1.4)
+    bibtex-ruby (5.1.5)
       latex-decode (~> 0.0)
-    cnccs (0.1.5)
+    cnccs (0.1.6)
     debase (0.2.4.1)
       debase-ruby_core_source (>= 0.10.2)
     debase-ruby_core_source (0.10.9)
@@ -20,17 +20,17 @@ GEM
       unf (>= 0.0.5, < 1.0.0)
     faraday (1.0.1)
       multipart-post (>= 1.2, < 3)
-    gb-agencies (0.0.6)
+    gb-agencies (0.0.7)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
     iso639 (1.3.2)
-    isoics (0.1.8)
-    latex-decode (0.3.1)
+    isoics (0.1.9)
+    latex-decode (0.3.2)
     mini_portile2 (2.4.0)
     multipart-post (2.1.1)
-    nokogiri (1.10.9)
+    nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
-    public_suffix (4.0.5)
+    public_suffix (4.0.6)
     rake (13.0.1)
     relaton (0.11.1)
       relaton-calconnect (~> 0.7.0)
