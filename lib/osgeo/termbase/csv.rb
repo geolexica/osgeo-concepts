@@ -6,9 +6,19 @@ require "pathname"
 module Osgeo::Termbase
 
 class Csv
-  attr_accessor :filename
+  attr_accessor :filename, :config
 
-  def initialize(filepath)
+  COLUMN_MEANINGS = %w[
+    term type domain comments definition authoritative_source entry_status
+  ]
+
+  COLUMN_ATTR_NAMES = COLUMN_MEANINGS.map { |str| :"#{str}_column" }
+
+  # Spreadsheet config
+  Config = Struct.new(:header_row_index, *COLUMN_ATTR_NAMES, keyword_init: true)
+
+  def initialize(filepath, config)
+    @config = config
     @filename = filepath
     @languages = languages_supported
     self
@@ -47,7 +57,7 @@ class Csv
     concepts = []
 
     csv.each_with_index do |row, i|
-      next if i < 3
+      next if i <= config.header_row_index
       term = parse_csv_row(row, i)
       concepts.push(term)
     end
@@ -62,19 +72,25 @@ class Csv
   end
 
   def parse_csv_row(row, i)
+    get_column = ->(name, wrap_in_array: false) do
+      column_idx = config.send(:"#{name}_column")
+      value = column_idx ? row[column_idx] : nil
+      value && wrap_in_array ? [value] : value
+    end
+
     Term.new(
-      id: i - 2,
-      term: row[0],
-      type: row[1],
-      domain: row[2],
-      comments: row[3] && [row[3]],
-      definition: row[4],
+      id: i - config.header_row_index,
+      term: get_column.(:term),
+      type: get_column.(:type),
+      domain: get_column.(:domain),
+      comments: get_column.(:comments, wrap_in_array: true),
+      definition: get_column.(:definition),
       authoritative_source: {
-        "link" => row[5],
+        "link" => get_column.(:authoritative_source),
         # ref: '',
         # clause: ''
       },
-      entry_status: row[6],
+      entry_status: get_column.(:entry_status),
       language_code: "eng"
     )
   end
