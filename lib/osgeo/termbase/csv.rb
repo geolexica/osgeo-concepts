@@ -3,16 +3,14 @@ require "csv"
 require "yaml"
 require "pathname"
 
+require_relative "term"
+
 module Osgeo::Termbase
 
 class Csv
   attr_accessor :filename, :config
 
-  COLUMN_MEANINGS = %w[
-    term type domain comments definition authoritative_source entry_status
-  ]
-
-  COLUMN_ATTR_NAMES = COLUMN_MEANINGS.map { |str| :"#{str}_column" }
+  COLUMN_ATTR_NAMES = Osgeo::Termbase::Term::INPUT_ATTRIBS.map { |str| :"#{str}_column" }
 
   # Spreadsheet config
   Config = Struct.new(:header_row_index, *COLUMN_ATTR_NAMES, keyword_init: true)
@@ -74,18 +72,13 @@ class Csv
 
     Term.new(
       id: i - config.header_row_index,
-      term: get_column.(:term),
-      type: get_column.(:type),
-      domain: get_column.(:domain),
+      term_preferred: get_column.(:term_preferred),
+      term_admitted: get_column.(:term_admitted),
+      term_abbrev: get_column.(:term_abbrev),
       comments: get_column.(:comments, wrap_in_array: true),
       definition: get_column.(:definition),
-      authoritative_source: {
-        "link" => get_column.(:authoritative_source),
-        # ref: '',
-        # clause: ''
-      },
-      entry_status: get_column.(:entry_status),
-      language_code: "eng"
+      source_comment: get_column.(:source_comment),
+      source_link: get_column.(:source_link),
     )
   end
 
