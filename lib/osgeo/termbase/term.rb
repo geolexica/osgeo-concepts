@@ -2,159 +2,55 @@ module Osgeo::Termbase
 
 class Term
 
-  INPUT_ATTRIBS = %i(
+  OUTPUT_ATTRIBS = %i(
     id
-    term
-    abbrev
-    synonyms
-    alt
-    domain
     definition
-    country_code
     language_code
     notes
     examples
-    entry_status
-    type
     comments
-    classification
-    review_indicator
     authoritative_source
-    authoritative_source_similarity
-    lineage_source
-    lineage_source_similarity
-    date_accepted
-    date_amended
-    review_date
-    review_status
-    review_type
-    review_decision
-    review_decision_date
-    review_decision_event
-    review_decision_notes
-    release
+    terms
   )
 
-  OUTPUT_ATTRIBS = INPUT_ATTRIBS - %i(term alt classification) + %i(terms)
+  INPUT_ATTRIBS = %i(
+    id
+    term_preferred
+    term_admitted
+    term_abbrev
+    comments
+    definition
+    source_link
+    source_comment
+  )
 
-  attr_accessor *(INPUT_ATTRIBS | OUTPUT_ATTRIBS)
+  attr_accessor *INPUT_ATTRIBS
+  attr_reader *OUTPUT_ATTRIBS
 
-  def initialize(options={})
-    @examples = []
+  def initialize(**attrs)
+    @language_code = "eng"
     @notes = []
+    @examples = []
 
-    # puts "options #{options.inspect}"
+    assing_attributes(**attrs)
+  end
 
-    options.each_pair do |k, v|
-      key = k.to_s
-      v = v.strip if v.is_a?(String)
-      next unless v
-      case key
-      when /^example/
-        add_example(v)
-      when /^note/
-        add_note(v)
-      else
-        # puts"Key #{k}"
-        key = key.gsub("-", "_")
-        self.send("#{key}=", v)
-      end
+  def assing_attributes(**attrs)
+    attrs.each_pair do |name, value|
+      public_send(:"#{name}=", value)
     end
-    self
   end
-
-  STRIP_PUNCTUATION = [
-    "：",
-    ":",
-    ".",
-    "–",
-    "\-"
-  ]
-
-  # WARNING
-  # Always put the longer Regexp match in front!
-  EXAMPLE_PREFIXES = {
-    # TODO: fix this, we should not have "EXAMPLES"
-    eng: ["EXAMPLES", "EXAMPLE"],
-    ara: "مثال",
-    chi: "示例",
-    dan: "EKSEMPEL",
-    dut: ["VOORBEELD", "VOORBEELDEN"],
-    fin: "ESIM",
-    fre: "Exemple",
-    # ger: "",
-    jpn: "例",
-    kor: "보기",
-    pol: "PRZYKŁAD",
-    may: "Contoh",
-    rus: "Пример",
-    spa: "Ejemplo",
-    swe: "Exempel"
-  }
-
-  # WARNING
-  # Always put the longer Regexp match in front!
-  NOTE_PREFIXES = {
-    eng: ["Note \\d to entry", "NOTE"],
-    ara: "ملاحظة",
-    chi: "注",
-    dan: "Note",
-    dut: "OPMERKING",
-    fin: "HUOM\\.?",  # Matches "HUOM", "HUOM.", "HUOM 1." and "HUOM. 1." (numeral added by the method)
-    fre: "A noter",
-    # ger: "",
-    jpn: "備考",
-    kor: "비고",
-    pol: "UWAGA",
-    may: "catatan",
-    rus: "нота",
-    spa: "Nota",
-    swe: ["Anm. \\d till termpost", "Anm. \\d till terpost", "Anm."]
-  }
-
-  # To match Chinese and Japanese numerals
-  ALL_FULL_HALF_WIDTH_NUMBERS = "[0-9０-９]"
-
-  def add_example(example)
-    c = clean_prefixed_string(example, EXAMPLE_PREFIXES)
-    @examples << c unless c.empty?
-  end
-
-  def add_note(note)
-    c = clean_prefixed_string(note, NOTE_PREFIXES)
-    @notes << c unless c.empty?
-  end
-
-  def clean_prefixed_string(string, criterion_map)
-    carry = string.strip
-    criterion_map.values.flatten.each do |mat|
-      # puts "example string: #{carry}, mat: #{mat}"
-
-      # puts "note string: #{carry}, mat: #{mat}"
-      # if @id == 318 and mat == "Nota" and string == "NOTA 1 Una operación tiene un nombre y una lista de parámetros."
-      #   require "pry"
-      #   binding.pry
-      # end
-
-      # Arabic notes/examples sometimes use parantheses around numbers
-      carry = carry.sub(
-        Regexp.new(
-          "^#{mat}\s*[#{STRIP_PUNCTUATION.join('')}]?" +
-          "\s*\\(?#{ALL_FULL_HALF_WIDTH_NUMBERS}*\\)?\s*"+
-          "[#{STRIP_PUNCTUATION.join('')}]?\s*",
-          Regexp::IGNORECASE
-        ),
-      '')
-    end
-
-    carry
-  end
-
 
   # The termid should ALWAYS be an integer.
   # https://github.com/riboseinc/osgeo-termbase/issues/1
+  #
+  # skalee: not really, but let's keep it this way
   def id=(newid)
     @id = Integer(newid)
+  end
+
+  def default_designation
+    [term_preferred, term_admitted, term_abbrev].compact.first
   end
 
   def to_hash
@@ -168,128 +64,41 @@ class Term
     end
   end
 
-  # OSGEO SPECIFIC
-  # type
-  ## Must be one of term, abbrev, soft, other, check
-  def type=(value)
-    @type = case value.to_s
-    when "term", "abbrev", "soft", "other", "check"
-      value.to_s
-    end
+  def authoritative_source
+    h = {
+      "link" => source_link,
+      "comment" => source_comment,
+      # ref: ''
+      # clause: ''
+    }
+    delete_blank_entries(h)
+    h.empty? ? nil : h
   end
 
-  # OSGEO SPECIFIC
-  # domain
-  ## Must be one of term, abbrev, soft, other, check
-  def domain=(value)
-    @domain = case value.to_s
-    when "concept", "org_acedemic", "org_indus", "org_intl", "org_govt"
-      value.to_s
-    end
-  end
-
-  # entry-status
-  ## Must be one of notValid valid superseded retired
-  def entry_status=(value)
-    case value
-    when "有效的", "käytössä", "действующий", "válido"
-      value = "valid"
-    when "korvattu", "reemplazado"
-      value = "superseded"
-    when "информация отсутствует" # "information absent"!?
-      value = "retired"
-    when %w(notValid valid superseded retired)
-      # do nothing
-    end
-    @entry_status = value
-  end
-
-  # classification
-  ## Must be one of the following: preferred admitted deprecated
-  def classification=(value)
-    case value
-    when ""
-      value = "admitted"
-    when "认可的", "допустимый", "admitido"
-      value = "admitted"
-    when "首选的", "suositettava", "suositeltava", "рекомендуемый", "preferente"
-      value = "preferred"
-    when %w(preferred admitted deprecated)
-      # do nothing
-    end
-    @classification = value
-  end
-
-  # review-indicator
-  ## Must be one of the following <empty field> Under Review in Source Document",
-  def review_indicator=(value)
-    unless ["", "Under Review in Source Document"].include?(value)
-      value = ""
-    end
-    @review_indicator = value
-  end
-
-  # authoritative-source-similarity
-  #     ## Must be one of the following codes: identical = 1 restyled = 2 context added = 3 generalisation = 4 specialisation = 5 unspecified = 6",
-  def authoritative_source_similarity=(value)
-    unless (1..6).include?(value)
-      value = 6
-    end
-    @authoritative_source_similarity = value
-  end
-
-  # lineage-source-similarity
-  #     ## Must be one of the following codes: identical = 1 restyled = 2 context added = 3 generalisation = 4 specialisation = 5 unspecified = 6",
-  def authoritative_source_similarity=(value)
-    unless (1..6).include?(value)
-      value = 6
-    end
-    @authoritative_source_similarity
-  end
-
-  def review_status=(value) ## Must be one of pending tentative final
-    unless ["", "pending", "tentative", "final"].include?(value)
-      value = ""
-    end
-    @review_status = value
-  end
-
-  def review_type=(value)     ## Must be one of supersession, retirement
-    unless ["", "supersession", "retirement"].include?(value)
-      value = ""
-    end
-    @review_type = value
-  end
-
-  def review_decision=(value) ## Must be one of withdrawn, accepted notAccepted
-    unless ["", "withdrawn", "accepted", "notAccepted"].include?(value)
-      value = ""
-    end
-    @review_decision = value
-  end
-
-  def retired?
-    release >= 0
-  end
-
+  # TODO types
   def terms
-    [primary_term_hash, alt_term_hash].compact
+    [
+      term_hash(:term_preferred),
+      term_hash(:term_admitted),
+      term_hash(:term_abbrev, abbrev: true),
+    ].compact
   end
 
-  def primary_term_hash
+  def term_hash(attr_name, abbrev: false)
+    designation = public_send(attr_name)
+    return nil if designation.nil?
+
     {
       "type" => "expression",
-      "designation" => term,
-      "normative_status" => classification,
-    } if term
+      "designation" => designation,
+      "normative_status" => "preferred",
+      "abbrev" => (abbrev || nil),
+    }.tap(&method(:delete_blank_entries))
   end
 
-  def alt_term_hash
-    {
-      "type" => "expression",
-      "designation" => alt,
-      "normative_status" => classification,
-    } if alt
+  def delete_blank_entries(hash)
+    hash.delete_if { |_, v| v.nil? }
+    hash
   end
 end
 
