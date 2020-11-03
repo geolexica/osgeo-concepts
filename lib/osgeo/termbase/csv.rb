@@ -18,25 +18,32 @@ class Csv
     "eng"
   end
 
-  def concept_collection
-    collection = ConceptCollection.new
+  def csv
+    @csv ||= load_csv
+  end
 
-    csv_content = File.read(@filename)
+  def load_csv
+    raw = File.read(@filename)
 
     # Google Sheets always uses \n at the last line end, but \r\n for all other line breaks
     # which causes Ruby's CSV to show this error:
     # CSV::MalformedCSVError: Unquoted fields do not allow \r or \n
     # Here we replace the DOS \r\n with Unix \n
-    csv_content = csv_content.gsub(/\r\n/, "\n")
-
-    # puts csv_content
+    csv_content = raw.gsub(/\r\n/, "\n")
 
     CSV.new(
       csv_content,
       liberal_parsing: true,
       skip_blanks: true
-    ).each_with_index do |row, i|
+    )
+  end
+
+  def concept_collection
+    collection = ConceptCollection.new
+
+    csv.each_with_index do |row, i|
       next if i < 3
+
       term = Term.new(
         id: i - 2,
         term: row[0],
