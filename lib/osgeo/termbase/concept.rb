@@ -39,7 +39,7 @@ class Concept < Hash
 
   def to_hash
     default_hash = {
-      "term" => default_term.term,
+      "term" => (default_term.default_designation),
       "termid" => id
     }
 
