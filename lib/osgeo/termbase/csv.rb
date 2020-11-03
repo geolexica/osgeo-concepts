@@ -65,12 +65,6 @@ class Csv
     concepts
   end
 
-  def to_concept_collection
-    collection = ConceptCollection.new
-    concepts.each { |c| collection.add_term(c) }
-    collection
-  end
-
   def parse_csv_row(row, i)
     get_column = ->(name, wrap_in_array: false) do
       column_idx = config.send(:"#{name}_column")
