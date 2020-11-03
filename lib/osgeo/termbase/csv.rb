@@ -22,6 +22,10 @@ class Csv
     @csv ||= load_csv
   end
 
+  def concepts
+    @concepts ||= load_concepts
+  end
+
   def load_csv
     raw = File.read(@filename)
 
@@ -38,18 +42,22 @@ class Csv
     )
   end
 
-  def concept_collection
-    collection = ConceptCollection.new
+  def load_concepts
+    # Was easier to change than #inject
+    concepts = []
 
     csv.each_with_index do |row, i|
       next if i < 3
-
       term = parse_csv_row(row, i)
-
-      # puts term.to_hash
-      collection.add_term(term)
+      concepts.push(term)
     end
 
+    concepts
+  end
+
+  def to_concept_collection
+    collection = ConceptCollection.new
+    concepts.each { |c| collection.add_term(c) }
     collection
   end
 

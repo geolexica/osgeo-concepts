@@ -25,7 +25,7 @@ table = Osgeo::Termbase::Csv.new(filepath)
 # registries = {
 #   "eng" => {
 #     metadata: {},
-#     terms: table.concept_collection
+#     terms: table.to_concept_collection
 #   }
 # }
 
@@ -43,7 +43,7 @@ output_dir = Dir.pwd
 #   file.write(metadata.to_yaml)
 # end
 
-collection = table.concept_collection
+collection = table.to_concept_collection
 
 collection.to_file(File.join(output_dir, Pathname.new(filepath).basename.sub_ext(".yaml")))
 
