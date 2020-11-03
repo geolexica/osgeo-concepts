@@ -44,27 +44,31 @@ class Csv
     csv.each_with_index do |row, i|
       next if i < 3
 
-      term = Term.new(
-        id: i - 2,
-        term: row[0],
-        type: row[1],
-        domain: row[2],
-        comments: row[3] && [row[3]],
-        definition: row[4],
-        authoritative_source: {
-          "link" => row[5],
-          # ref: '',
-          # clause: ''
-        },
-        entry_status: row[6],
-        language_code: "eng"
-      )
+      term = parse_csv_row(row, i)
 
       # puts term.to_hash
       collection.add_term(term)
     end
 
     collection
+  end
+
+  def parse_csv_row(row, i)
+    Term.new(
+      id: i - 2,
+      term: row[0],
+      type: row[1],
+      domain: row[2],
+      comments: row[3] && [row[3]],
+      definition: row[4],
+      authoritative_source: {
+        "link" => row[5],
+        # ref: '',
+        # clause: ''
+      },
+      entry_status: row[6],
+      language_code: "eng"
+    )
   end
 
 end
