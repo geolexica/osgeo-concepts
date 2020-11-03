@@ -19,8 +19,13 @@ if Pathname.new(filepath).extname != ".csv"
   exit 1
 end
 
+table_config = Osgeo::Termbase::Csv::Config.new(
+  header_row_index: 2, term_column: 0, type_column: 1, domain_column: 2,
+  comments_column: 3, definition_column: 4, authoritative_source_column: 5,
+  entry_status_column: 6,
+)
 
-table = Osgeo::Termbase::Csv.new(filepath)
+table = Osgeo::Termbase::Csv.new(filepath, table_config)
 
 # registries = {
 #   "eng" => {
