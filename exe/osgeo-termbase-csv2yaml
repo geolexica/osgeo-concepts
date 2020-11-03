@@ -54,7 +54,8 @@ collection = Osgeo::Termbase::ConceptCollection.new
 
 concepts.each { |c| collection.add_term(c) }
 
-collection.to_file(File.join(output_dir, Pathname.new(filepath).basename.sub_ext(".yaml")))
+# Aggregated YAML
+# collection.to_file(File.join(output_dir, Pathname.new(filepath).basename.sub_ext(".yaml")))
 
 collection_output_dir = File.join(output_dir, "concepts")
 
