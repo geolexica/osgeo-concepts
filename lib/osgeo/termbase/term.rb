@@ -22,6 +22,12 @@ class Term
     definition
     source_link
     source_comment
+    note1
+    note2
+    note3
+    example1
+    example2
+    example3
   )
 
   attr_accessor *INPUT_ATTRIBS
@@ -29,8 +35,6 @@ class Term
 
   def initialize(**attrs)
     @language_code = "eng"
-    @notes = []
-    @examples = []
 
     assing_attributes(**attrs)
   end
@@ -39,6 +43,14 @@ class Term
     attrs.each_pair do |name, value|
       public_send(:"#{name}=", value)
     end
+  end
+
+  def notes
+    [note1, note2, note3].compact
+  end
+
+  def examples
+    [example1, example2, example3].compact
   end
 
   # The termid should ALWAYS be an integer.

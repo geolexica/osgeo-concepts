@@ -79,6 +79,12 @@ class Csv
       definition: get_column.(:definition),
       source_comment: get_column.(:source_comment),
       source_link: get_column.(:source_link),
+      note1: get_column.(:note1),
+      note2: get_column.(:note2),
+      note3: get_column.(:note3),
+      example1: get_column.(:example1),
+      example2: get_column.(:example2),
+      example3: get_column.(:example3),
     )
   end
 
