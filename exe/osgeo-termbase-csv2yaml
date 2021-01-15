@@ -6,43 +6,26 @@ require 'fileutils'
 require_relative '../lib/osgeo/termbase.rb'
 # require 'pry'
 
-abbrev_filepath = ARGV[0]
-proposed_filepath = ARGV[1]
+filepath = ARGV[0]
 
-if abbrev_filepath.nil?
-  puts 'Error: no abbrev_filepath given as first argument.'
+if filepath.nil?
+  puts 'Error: no filepath given as first argument.'
   exit 1
 end
 
-if Pathname.new(abbrev_filepath).extname != ".csv"
-  puts 'Error: abbrev_filepath given must have extension .csv.'
+if Pathname.new(filepath).extname != ".csv"
+  puts 'Error: filepath given must have extension .csv.'
   exit 1
 end
 
-if proposed_filepath.nil?
-  puts 'Error: no proposed_filepath given as second argument.'
-  exit 1
-end
-
-if Pathname.new(proposed_filepath).extname != ".csv"
-  puts 'Error: proposed_filepath given must have extension .csv.'
-  exit 1
-end
-
-abbreviations_table_config = Osgeo::Termbase::Csv::Config.new(
-  header_row_index: 2, term_abbrev_column: 0, comments_column: 5,
-  definition_column: 6, source_link_column: 7,
+table_config = Osgeo::Termbase::Csv::Config.new(
+  header_row_index: 2, term_preferred_column: 1, term_admitted_column: 2,
+  term_abbrev_column: 3, definition_column: 4, source_link_column: 11,
+  example1_column: 5, example2_column: 7, example3_column: 9,
+  note1_column: 6, note2_column: 8, note3_column: 10,
 )
 
-# TODO Authoritative source is not a link
-proposed_table_config = Osgeo::Termbase::Csv::Config.new(
-  header_row_index: 5, term_preferred_column: 0, term_admitted_column: 1,
-  term_abbrev_column: 2, definition_column: 5, comments_column: 6,
-  source_comment_column: 7,
-)
-
-abbreviations = Osgeo::Termbase::Csv.new(abbrev_filepath, abbreviations_table_config).concepts
-proposed = Osgeo::Termbase::Csv.new(proposed_filepath, proposed_table_config).concepts
+concepts = Osgeo::Termbase::Csv.new(filepath, table_config).concepts
 
 # registries = {
 #   "eng" => {
@@ -67,7 +50,7 @@ output_dir = Dir.pwd
 
 
 # Merge concept arrays
-merged_terms = abbreviations + proposed
+merged_terms = concepts
 merged_terms.sort_by! { |t| t.default_designation.downcase }
 merged_terms.each.with_index { |t, i| t.id = i + 1 } # Re-calculate ids
 
