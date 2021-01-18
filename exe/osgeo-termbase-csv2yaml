@@ -20,7 +20,7 @@ end
 
 table_config = Osgeo::Termbase::Csv::Config.new(
   header_row_index: 2, term_preferred_column: 1, term_admitted_column: 2,
-  term_abbrev_column: 3, definition_column: 4, source_link_column: 11,
+  term_abbrev_column: 3, definition_column: 4, source_column: 11,
   example1_column: 5, example2_column: 7, example3_column: 9,
   note1_column: 6, note2_column: 8, note3_column: 10,
 )
