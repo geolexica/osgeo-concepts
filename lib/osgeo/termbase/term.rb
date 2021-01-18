@@ -20,8 +20,7 @@ class Term
     term_abbrev
     comments
     definition
-    source_link
-    source_comment
+    source
     note1
     note2
     note3
@@ -61,6 +60,20 @@ class Term
     @id = Integer(newid)
   end
 
+  def source=(source_str)
+    case source_str
+    when %r{\Ahttps?://}
+      @source_link, @source_comment = source_str.split(/,?\s+/, 2)
+    when %r{\AISO\b}i
+      @source_ref, @source_clause, @source_comment =
+        source_str.split(/,\s+/, 3)
+    else
+      @source_comment = source_str
+    end
+
+    source_str
+  end
+
   def default_designation
     [term_preferred, term_admitted, term_abbrev].compact.first
   end
@@ -78,12 +91,13 @@ class Term
 
   def authoritative_source
     h = {
-      "link" => source_link,
-      "comment" => source_comment,
-      # ref: ''
-      # clause: ''
+      "ref" => @source_ref,
+      "clause" => @source_clause,
+      "link" => @source_link,
+      "comment" => @source_comment,
     }
     delete_blank_entries(h)
+    h.transform_values!(&:strip)
     h.empty? ? nil : h
   end
 
