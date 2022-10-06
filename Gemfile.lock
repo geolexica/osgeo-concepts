@@ -7,8 +7,8 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.7.0)
-      public_suffix (>= 2.0.2, < 5.0)
+    addressable (2.8.1)
+      public_suffix (>= 2.0.2, < 6.0)
     bibtex-ruby (5.1.5)
       latex-decode (~> 0.0)
     cnccs (0.1.6)
@@ -30,7 +30,7 @@ GEM
     multipart-post (2.1.1)
     nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
-    public_suffix (4.0.6)
+    public_suffix (5.0.0)
     rake (13.0.1)
     relaton (0.11.1)
       relaton-calconnect (~> 0.7.0)
